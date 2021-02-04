@@ -1,0 +1,94 @@
+*Host Patterns*
+ansible all --list-hosts
+ansible group[1:10] --list-hosts
+ansible group[-1] --list-hosts (last node from group)
+usr/bin/ansible
+
+*(Ad-hoc commands)*
+ansible webserver[3:5] -a "ping" 
+ansible group01:group02group03 -m ping
+ansible all -a "cat /etc/os-release"
+ansible webserver -ba "yum install httpd -y" (become=sudo)
+ansible webserver -a "sudo yum install httpd -y"
+ansible -b -k -m user -a 'name=rizwan' all
+
+*(Modules in Ad-hoc commands)*
+ansible webserver -b -m yum -a "pkg=httpd state=present"
+
+state=present=install
+state=Absent=Remove
+state=latest=update
+state=started=start
+
+ansible group -b -m coy -a "src=file dest=/tmp" (Copy)
+ansible group -b -m user -a "name=Rizwan"
+ansible group -m setup -a "filter= *ipv4*"
+ansible
+
+*Playbook*
+
+--- #This is playbook
+
+- hosts: group
+- user: ansible
+- become: yes
+- connection: ssh
+- gather-facts: yes
+
+:wq
+
+*Commands*
+
+ansible playbook --check name.yml
+ansible playbook syntacs --check name.yml
+ansible playbook name.yml
+
+*Playbook*
+
+--- #This is playbook
+
+- hosts: group
+- user: ansible
+- become: yes
+- connection: ssh
+- gather-facts: yes 
+
+  tasks: 
+     name: Install httpd on linux
+     action: yum name=httpd state=installed
+:wq
+
+*Playbook "Vairable"* (call from inventory/playbook/outside)
+
+--- #This is playbook
+
+- hosts: group
+- user: ansible
+- become: yes
+- connection: ssh
+- vars:
+    pkgname: httpd 
+
+  tasks: 
+     name: Install httpd on linux
+     action: yum name='{{ httpd }}' state=installed
+:wq
+
+*Playbook "Handlers"*
+
+--- #This is playbook
+
+- hosts: group
+- user: ansible
+- become: yes
+- connection: ssh
+- gather-facts: yes 
+
+  tasks: 
+    -name: Install httpd on linux
+     action: yum name=httpd state=installed
+     notify: restart HTTPD
+  handlers:
+    -name: restart HTTPD
+     action:Service name=httpd state=restart
+:wq
