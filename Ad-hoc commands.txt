@@ -92,3 +92,4 @@ ansible playbook name.yml
     -name: restart HTTPD
      action:Service name=httpd state=restart
 :wq
+123
